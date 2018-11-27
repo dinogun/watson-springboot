@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: watson-nolimits-sample
+  labels:
+    app: watson-nolimits-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: watson-nolimits-deployment
+        app: watson-nolimits-deployment
+        version: v1
+    spec:
+      containers:
+      - name: watson-nolimits-springapp
+        image: dinogun/watson-cjvm:slim
+        ports:
+          - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: watson-nolimits-service
+  labels:
+    app: watson-nolimits-app
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 32444
+      targetPort: 8080
+      name: http
+  selector:
+    name: watson-nolimits-deployment

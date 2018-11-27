@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: watson-old-sample
+  labels:
+    app: watson-old-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: watson-old-deployment
+        app: watson-old-deployment
+        version: v1
+    spec:
+      containers:
+      - name: watson-old-springapp
+        image: dinogun/watson-hdfc-app
+        ports:
+          - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: watson-old-service
+  labels:
+    app: watson-old-app
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 32333
+      targetPort: 8080
+      name: http
+  selector:
+    name: watson-old-deployment

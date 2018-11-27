@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: watson-limit-sample
+  labels:
+    app: watson-limit-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: watson-limit-deployment
+        app: watson-limit-deployment
+        version: v1
+    spec:
+      containers:
+      - name: watson-limit-springapp
+        image: dinogun/watson-cjvm:slim
+        ports:
+          - containerPort: 8080
+        resources:
+          requests:
+            memory: "220Mi"
+            cpu: "250m"
+          limits:
+            memory: "300Mi"
+            cpu: "800m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: watson-limit-service
+  labels:
+    app: watson-limit-app
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 32555
+      targetPort: 8080
+      name: http
+  selector:
+    name: watson-limit-deployment

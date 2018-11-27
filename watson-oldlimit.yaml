@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: watson-oldlimit-sample
+  labels:
+    app: watson-oldlimit-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: watson-oldlimit-deployment
+        app: watson-oldlimit-deployment
+        version: v1
+    spec:
+      containers:
+      - name: watson-oldlimit-springapp
+        image: dinogun/watson-hdfc-app
+        ports:
+          - containerPort: 8080
+        resources:
+          requests:
+            memory: "220Mi"
+            cpu: "250m"
+          limits:
+            memory: "300Mi"
+            cpu: "800m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: watson-oldlimit-service
+  labels:
+    app: watson-oldlimit-app
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 32666
+      targetPort: 8080
+      name: http
+  selector:
+    name: watson-oldlimit-deployment
