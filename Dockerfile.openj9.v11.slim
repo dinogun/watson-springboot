@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM adoptopenjdk/maven-openjdk11-openj9:latest as mvnbuild-jdk11-openj9
+FROM adoptopenjdk/maven-openjdk11-openj9:latest as mvnbuild-jdk11-openj9-slim
 
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
     && apt-get install -y --no-install-recommends git \
@@ -34,7 +34,7 @@ FROM adoptopenjdk/openjdk11-openj9:alpine-slim
 
 WORKDIR /opt/app
 
-COPY --from=mvnbuild-jdk11-openj9 /opt/src/watson-springboot/ /opt/app/
+COPY --from=mvnbuild-jdk11-openj9-slim /opt/src/watson-springboot/ /opt/app/
 
 CMD ["sh","target/bin/webapp"]
 
