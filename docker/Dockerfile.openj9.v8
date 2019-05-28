@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM adoptopenjdk/maven-openjdk8:latest as mvnbuild-hotspot
+FROM adoptopenjdk/maven-openjdk8-openj9:latest as mvnbuild-openj9
 
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
     && apt-get install -y --no-install-recommends git \
@@ -28,19 +28,12 @@ ARG app_name=watson-springboot
 RUN git clone https://github.com/${app_repo}/${app_name}.git
 
 RUN cd ${app_name} \
-    && mvn package
+    && mvn -f pom-java-v8.xml package
 
-FROM adoptopenjdk/openjdk8:alpine-slim
+FROM adoptopenjdk/openjdk8-openj9:latest
 
 WORKDIR /opt/app
 
-COPY --from=mvnbuild-hotspot /opt/src/watson-springboot/ /opt/app/
+COPY --from=mvnbuild-openj9 /opt/src/watson-springboot/ /opt/app/
 
 CMD ["sh","target/bin/webapp"]
-
-
-
-
-
-
-

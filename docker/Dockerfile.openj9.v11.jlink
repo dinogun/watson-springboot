@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM adoptopenjdk/maven-openjdk11-openj9:latest as mvnbuild-jdk11-openj9-jlink-scc
+FROM adoptopenjdk/maven-openjdk11-openj9:latest as mvnbuild-jdk11-openj9
 
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
     && apt-get install -y --no-install-recommends git \
@@ -28,20 +28,8 @@ ARG app_name=watson-springboot
 RUN git clone https://github.com/${app_repo}/${app_name}.git
 
 RUN cd ${app_name} \
-    && mvn -f pom11.xml package \
-    && jlink -G --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --print-module-deps target/WatsonSampleApp.jar),java.se --output jre \
-    && cp /opt/java/openjdk/lib/compressedrefs/libj9shr29.so /opt/src/watson-springboot/jre/lib/compressedrefs
-
-ENV JAVA_HOME=/opt/src/watson-springboot/jre \
-    PATH="/opt/src/opt/src/watson-springboot/jre/bin:$PATH"
-# Turn on Shareclasses
-ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -Xshareclasses:cacheDir=/tmp/scc"
-
-# Do a dry run of the app to generate share classes
-RUN cd ${app_name} \
-    && chmod +x target/bin/webapp \
-    && nohup bash -c "sh target/bin/webapp &" \
-    && sleep 10
+    && mvn -f pom-java-v11.xml package \
+	&& jlink -G --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --print-module-deps target/WatsonSampleApp.jar),java.se --output jre
 
 FROM alpine:3.9
 
@@ -73,10 +61,9 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
 
 WORKDIR /opt/app
 
-COPY --from=mvnbuild-jdk11-openj9-jlink-scc /opt/src/watson-springboot/ /opt/app/
-COPY --from=mvnbuild-jdk11-openj9-jlink-scc /tmp/scc/ /tmp/scc/
+COPY --from=mvnbuild-jdk11-openj9 /opt/src/watson-springboot/ /opt/app/
 
 ENV JAVA_HOME=/opt/app/jre \
     PATH="/opt/app/jre/bin:$PATH"
-ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle -Xshareclasses:cacheDir=/tmp/scc"
+ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle"
 CMD ["sh","target/bin/webapp"]
