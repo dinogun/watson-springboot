@@ -9,6 +9,7 @@ docker build -t watson-springboot:openj9-v8 -f Dockerfile.openj9.v8 .
 docker build -t watson-springboot:openj9-v11.slim -f Dockerfile.openj9.v11.slim .
 docker build -t watson-springboot:openj9-v11 -f Dockerfile.openj9.v11 .
 docker build -t watson-springboot:openj9-v11.jlink -f Dockerfile.openj9.v11.jlink .
+docker build -t watson-springboot:openj9-v11.jlink.scc -f Dockerfile.openj9.v11.jlink.scc .
 
 
 # Hotspot builds

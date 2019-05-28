@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: watson-criu-nolimits-sample
+  labels:
+    app: watson-criu-nolimits-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: watson-criu-nolimits-deployment
+        app: watson-criu-nolimits-deployment
+        version: v1
+    spec:
+      containers:
+      - name: watson-criu-nolimits-springapp
+        image: dinogun/watson-springboot:openj9-v8.criu-checkpoint
+        securityContext:
+          privileged: true
+        ports:
+          - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: watson-criu-nolimits-service
+  labels:
+    app: watson-criu-nolimits-app
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 32226
+      targetPort: 8080
+      name: http
+  selector:
+    name: watson-criu-nolimits-deployment

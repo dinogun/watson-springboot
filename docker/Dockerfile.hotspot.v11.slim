@@ -28,19 +28,12 @@ ARG app_name=watson-springboot
 RUN git clone https://github.com/${app_repo}/${app_name}.git
 
 RUN cd ${app_name} \
-    && mvn -f pom11.xml package
+    && mvn -f pom-java-v11.xml package
 
-FROM adoptopenjdk/openjdk11:latest
+FROM adoptopenjdk/openjdk11:alpine-slim
 
 WORKDIR /opt/app
 
 COPY --from=mvnbuild-jdk11-hotspot /opt/src/watson-springboot/ /opt/app/
 
 CMD ["sh","target/bin/webapp"]
-
-
-
-
-
-
-

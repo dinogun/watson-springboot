@@ -29,7 +29,7 @@ spec:
   type: NodePort
   ports:
     - port: 8080
-      nodePort: 32333
+      nodePort: 32225
       targetPort: 8080
       name: http
   selector:
