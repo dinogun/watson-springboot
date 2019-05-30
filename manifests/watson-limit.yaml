@@ -16,6 +16,9 @@ spec:
       containers:
       - name: watson-limit-springapp
         image: dinogun/watson-cjvm:slim
+        env:
+        - name: JAVA_TOOL_OPTIONS
+          value: -XX:MaxRAMPercentage=78.20 -Xmns63M -Xmos42M
         ports:
           - containerPort: 8080
         resources:
