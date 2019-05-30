@@ -12,12 +12,32 @@ spec:
         name: watson-criu-nolimits-deployment
         app: watson-criu-nolimits-deployment
         version: v1
+      annotations:
+        container.seccomp.security.alpha.kubernetes.io/watson-criu-nolimits-springapp: unconfined
+        container.apparmor.security.beta.kubernetes.io/watson-criu-nolimits-springapp: unconfined
     spec:
       containers:
       - name: watson-criu-nolimits-springapp
         image: dinogun/watson-springboot:openj9-v8.criu-checkpoint
+        imagePullPolicy: Always
         securityContext:
-          privileged: true
+          capabilities:
+            add:
+              - AUDIT_CONTROL
+              - CHOWN
+              - DAC_OVERRIDE
+              - DAC_READ_SEARCH
+              - FOWNER
+              - FSETID
+              - KILL
+              - NET_ADMIN
+              - SETGID
+              - SETUID
+              - SETPCAP
+              - SYS_ADMIN
+              - SYS_CHROOT
+              - SYS_PTRACE
+              - SYS_RESOURCE
         ports:
           - containerPort: 8080
 ---
