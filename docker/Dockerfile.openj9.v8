@@ -30,7 +30,7 @@ RUN git clone https://github.com/${app_repo}/${app_name}.git
 RUN cd ${app_name} \
     && mvn -f pom-java-v8.xml package
 
-FROM adoptopenjdk/openjdk8-openj9:latest
+FROM adoptopenjdk:8-jre-openj9
 
 WORKDIR /opt/app
 
