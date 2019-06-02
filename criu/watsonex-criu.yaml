@@ -1,24 +1,24 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: watson-criu-nolimits-sample
+  name: watsonex-criu
   labels:
-    app: watson-criu-nolimits-app
+    app: watsonex-criu-app
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        name: watson-criu-nolimits-deployment
-        app: watson-criu-nolimits-deployment
+        name: watsonex-criu-deployment
+        app: watsonex-criu-deployment
         version: v1
       annotations:
-        container.seccomp.security.alpha.kubernetes.io/watson-criu-nolimits-springapp: unconfined
-        container.apparmor.security.beta.kubernetes.io/watson-criu-nolimits-springapp: unconfined
+        container.seccomp.security.alpha.kubernetes.io/watsonex-criu-springapp: unconfined
+        container.apparmor.security.beta.kubernetes.io/watsonex-criu-springapp: unconfined
     spec:
       containers:
-      - name: watson-criu-nolimits-springapp
-        image: dinogun/watson-springboot:openj9-v8.criu-checkpoint
+      - name: watsonex-criu-springapp
+        image: dinogun/watsonex-springboot:openj9-v8.criu-checkpoint
         imagePullPolicy: Always
         securityContext:
           capabilities:
@@ -35,9 +35,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: watson-criu-nolimits-service
+  name: watsonex-criu-service
   labels:
-    app: watson-criu-nolimits-app
+    app: watsonex-criu-app
 spec:
   type: NodePort
   ports:
@@ -46,4 +46,4 @@ spec:
       targetPort: 8080
       name: http
   selector:
-    name: watson-criu-nolimits-deployment
+    name: watsonex-criu-deployment

@@ -15,4 +15,5 @@
 # limitations under the License.
 #
 
-kubectl -n default create -f watson-criu-nolimits.yaml
+# Now create the actual deployment
+kubectl -n cert-manager create -f watsonex-criu.yaml
