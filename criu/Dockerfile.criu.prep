@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM watson-springboot:openj9-v8
+FROM watsonex-springboot:openj9-v8
 
 USER root
 ARG workdir

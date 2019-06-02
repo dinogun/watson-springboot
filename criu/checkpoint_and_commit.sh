@@ -49,17 +49,17 @@ DOCKER_CAPABILITIES="--cap-add AUDIT_CONTROL \
 # Build the application docker image
 echo
 echo "#################### Building the App Docker Image #####################"
-docker build -t watson-springboot:openj9-v8 -f Dockerfile.openj9.v8 .
+docker build -t watsonex-springboot:openj9-v8 -f Dockerfile.openj9.v8 .
 echo
 
 # Build a Docker image with the target application and CRIU libraries. 
 echo "#################### Build the App+CRIU Docker Image #####################"
-docker build -t watson-springboot:openj9-v8.criu-prep -f Dockerfile.criu.prep .
+docker build -t watsonex-springboot:openj9-v8.criu-prep -f Dockerfile.criu.prep .
 echo
 
 # Now run the app to prep for checkpointing
 echo "#################### Run the App #####################"
-prep_image_id=$(docker run ${DOCKER_CAPABILITIES} -d watson-springboot:openj9-v8.criu-prep)
+prep_image_id=$(docker run ${DOCKER_CAPABILITIES} -d watsonex-springboot:openj9-v8.criu-prep)
 echo
 
 # Wait for the app to come up
@@ -77,7 +77,7 @@ echo
 
 # Now commit the docker image with the checkpoint
 echo "#################### Commiting the Check-Pointed App #####################"
-docker commit ${prep_image_id} watson-springboot:openj9-v8.criu-checkpoint
+docker commit ${prep_image_id} watsonex-springboot:openj9-v8.criu-checkpoint
 echo
 
 # Stop the running container
@@ -87,7 +87,7 @@ echo
 
 # Test the commited check pointed app
 echo "#################### Test the Check-Pointed App #####################"
-test_cont=$(docker run ${DOCKER_CAPABILITIES} -d -p 8080:8080 watson-springboot:openj9-v8.criu-checkpoint)
+test_cont=$(docker run ${DOCKER_CAPABILITIES} -d -p 8080:8080 watsonex-springboot:openj9-v8.criu-checkpoint)
 errors=$(docker logs ${test_cont} 2>&1 | tee criu.log | grep -i "error")
 rm -f criu.log
 if [ ! -z "${errors}" ]; then
@@ -105,6 +105,6 @@ echo
 # Now push the checkpointed image to DockerHub
 echo
 echo "#################### Push the Checkpointed App to DockerHub #####################"
-docker tag watson-springboot:openj9-v8.criu-checkpoint dinogun/watson-springboot:openj9-v8.criu-checkpoint
-docker push dinogun/watson-springboot:openj9-v8.criu-checkpoint
+docker tag watsonex-springboot:openj9-v8.criu-checkpoint dinogun/watsonex-springboot:openj9-v8.criu-checkpoint
+docker push dinogun/watsonex-springboot:openj9-v8.criu-checkpoint
 echo
