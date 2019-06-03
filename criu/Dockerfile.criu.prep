@@ -24,16 +24,16 @@ RUN apt-get update \
                python3-future \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /root/appcr
+WORKDIR /opt/appcr
 
-ENV CR_LOG_DIR="/root/appcr/cr_logs" \
+ENV CR_LOG_DIR="/opt/appcr/cr_logs" \
     CHECKPOINT_SUCCESS_MSG="Checkpoint success" \
     CHECKPOINT_FAILED_MSG="Checkpoint failed" \
     DUMP_LOG_FILE="dump.log" \
     RESTORE_LOG_FILE="restore.log" \
     APP_PID_FILE="app.pid"
 
-RUN mkdir -p /root/appcr/cr_logs
-ADD appcr.sh /root/appcr/appcr.sh
+RUN mkdir -p /opt/appcr/cr_logs
+ADD appcr.sh /opt/appcr/appcr.sh
 
-ENTRYPOINT ["/root/appcr/appcr.sh"]
+ENTRYPOINT ["/opt/appcr/appcr.sh"]
