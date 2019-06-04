@@ -30,11 +30,20 @@ RUN git clone https://github.com/${app_repo}/${app_name}.git
 RUN cd ${app_name} \
     && mvn -f pom-java-v8.xml package
 
-FROM adoptopenjdk/openjdk8-openj9:latest
+FROM adoptopenjdk:8-jre-openj9
+
+RUN apt-get update \
+    && useradd -u 1001 -r -g 0 -s /usr/sbin/nologin watsonex \
+    && usermod -aG sudo watsonex \
+    && mkdir /opt/app
 
 WORKDIR /opt/app
 
 COPY --from=mvnbuild-openj9 /opt/src/watson-springboot/ /opt/app/
 COPY app.sh /opt/app/
+
+RUN chown -R 1001:0 /opt
+
+USER 1001
 
 CMD ["sh","app.sh"]

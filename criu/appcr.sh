@@ -19,9 +19,15 @@
 # In the restore docker image, it helps restore from the stored checkpoint.
 
 restore_from_checkpoint() {
-	umount -R /proc
-	mount -t proc proc /proc
-	criu restore --tcp-established -j -v4 -o ${CR_LOG_DIR}/${RESTORE_LOG_FILE}
+	start_us=$(($(date +%s%N)/1000))
+	sudo umount -R /proc 
+	sudo mount -t proc proc /proc
+	pre_criu_us=$(($(date +%s%N)/1000))
+	diff_us=$((${pre_criu_us}-${start_us}))
+	echo
+	echo "PRE CRIU Setup Time: ${diff_us} us"
+	echo
+	sudo criu restore --tcp-established -j -v4 -o ${CR_LOG_DIR}/${RESTORE_LOG_FILE}
 }
 
 if [ -f ${CR_LOG_DIR}/${DUMP_LOG_FILE} ]; then
