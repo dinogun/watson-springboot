@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: watsonex-criu-ns
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: watsonex-criu-sa
+  namespace: watsonex-criu-ns

@@ -71,8 +71,9 @@ echo
 echo "#################### Check-Pointing the App #####################"
 # PID no of the java process in the container above, it cannot be 1 (per CRIU), so we add a dummy shell script
 # to switch to a higher PID. In this case it is always 9, so hard coding it.
-JAVA_PID=9
-docker exec -it ${prep_image_id} criu dump -t ${JAVA_PID} --tcp-established -j --leave-running -v4 -o /opt/appcr/cr_logs/dump.log
+JAVA_PID=38
+docker exec -it ${prep_image_id} ps -ef
+docker exec -u root -it ${prep_image_id} criu dump -t ${JAVA_PID} --tcp-established -j --leave-running -v4 -o /opt/appcr/cr_logs/dump.log
 echo
 
 # Now commit the docker image with the checkpoint

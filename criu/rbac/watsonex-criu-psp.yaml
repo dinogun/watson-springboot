@@ -1,0 +1,56 @@
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: watsonex-criu-psp
+  annotations:
+    seccomp.security.alpha.kubernetes.io/defaultProfileName: 'unconfined'
+    apparmor.security.beta.kubernetes.io/defaultProfileName: 'unconfined'
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  allowedCapabilities:
+  - AUDIT_CONTROL
+  - DAC_READ_SEARCH
+  - NET_ADMIN
+  - SYS_ADMIN
+  - SYS_PTRACE
+  - SYS_RESOURCE
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: MustRunAs
+    ranges:
+    - min: 1
+      max: 65535
+  runAsUser:
+    rule: MustRunAsNonRoot
+  fsGroup:
+    rule: RunAsAny
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: watsonex-criu-psp-clusterrole
+rules:
+- apiGroups:
+  - extensions
+  resourceNames:
+  - watsonex-criu-psp
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: watsonex-criu-psp-clusterrole-binding
+subjects:
+- kind: ServiceAccount
+  name: watsonex-criu-sa
+  namespace: watsonex-criu-ns
+roleRef:
+  kind: ClusterRole
+  name: watsonex-criu-psp-clusterrole
+  apiGroup: rbac.authorization.k8s.io

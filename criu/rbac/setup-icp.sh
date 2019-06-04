@@ -13,35 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-# Dummy script to change the Java PID no away from "1"
-cd /opt/app
-ls -l
-ps -ef
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-sh target/bin/webapp
+# Create the namespace and the associated service account (One time only)
+kubectl create -f watsonex-criu-ns.yaml
+
+# Create the pod security policy, the cluster role and bind the cluster role
+# to the service account created above. (One time only)
+kubectl create -f watsonex-criu-psp.yaml

@@ -13,35 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-# Dummy script to change the Java PID no away from "1"
-cd /opt/app
-ls -l
-ps -ef
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-ls -l
-sh target/bin/webapp
+# Now create the actual deployment
+kubectl -n watsonex-criu-ns create -f watsonex-criu-rbac.yaml

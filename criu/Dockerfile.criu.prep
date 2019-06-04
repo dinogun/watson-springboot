@@ -16,14 +16,13 @@
 FROM watsonex-springboot:openj9-v8
 
 USER root
-ARG workdir
+
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends criu iptables gdb vim \
-               libprotobuf-dev libprotobuf-c0-dev protobuf-c-compiler protobuf-compiler python-protobuf \
-               pkg-config python-ipaddress libbsd-dev iproute2 libcap-dev libnl-3-dev libnet-dev libaio-dev \
-               python3-future \
+    && apt-get install -y --no-install-recommends criu iptables sudo \
+    && sed -i 's/%sudo\tALL=(ALL:ALL) ALL/%sudo\tALL=(ALL) NOPASSWD:ALL/' /etc/sudoers \
     && rm -rf /var/lib/apt/lists/*
 
+ARG workdir
 WORKDIR /opt/appcr
 
 ENV CR_LOG_DIR="/opt/appcr/cr_logs" \
@@ -33,7 +32,11 @@ ENV CR_LOG_DIR="/opt/appcr/cr_logs" \
     RESTORE_LOG_FILE="restore.log" \
     APP_PID_FILE="app.pid"
 
-RUN mkdir -p /opt/appcr/cr_logs
+RUN mkdir -p /opt/appcr/cr_logs \
+    && chown -R 1001:0 /opt
+
+USER 1001
+
 ADD appcr.sh /opt/appcr/appcr.sh
 
 ENTRYPOINT ["/opt/appcr/appcr.sh"]
