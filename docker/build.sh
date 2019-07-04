@@ -33,3 +33,7 @@ docker build --pull -t watsonex-springboot:hotspot-v8 -f Dockerfile.hotspot.v8 .
 
 docker build --pull -t watsonex-springboot:hotspot-v11.slim -f Dockerfile.hotspot.v11.slim .
 docker build --pull -t watsonex-springboot:hotspot-v11 -f Dockerfile.hotspot.v11 .
+
+echo
+echo
+docker images | grep -e "TAG" -e "watsonex"
