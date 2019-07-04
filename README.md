@@ -1,6 +1,6 @@
 # Java, Containers and Kubernetes
 
-Not so long ago Java did not gel well with Containers leading to applications performing suboptimally or worse, getting terminated in kubernetes. Since then however, there have been a number of changes to the JVM, including making it container aware, new flags that help the heap to grow and shrink along with the container memory restrictions, better defaults and in general a much better user experience. Together with the Modularity feature, that was introduced from Java 9 onwards, Java pplications can now be small and nimble, agile, boast fast start up times, have a very small memory footprint all the while continuing to provide the best possible thoughput! This tutorial looks at each of the above mentioned features in a lot more detail and what the users need to do to get the most of running their Java applications in a Kubernetes based Cloud.
+Not so long ago Java did not gel well with Containers leading to applications performing suboptimally or worse, getting terminated in kubernetes. Since then however, there have been a number of changes to the JVM, including making it container aware, new flags that help the heap to grow and shrink along with the container memory restrictions, better defaults and in general a much better user experience. Together with the Modularity feature, that was introduced from Java 9 onwards, Java applications can now be small, agile, boast fast start up times, have a very small memory footprint all the while continuing to provide the best possible thoughput ! This tutorial looks at each of the above mentioned features in a lot more detail and what the users need to do to get the most of running their Java applications in a Kubernetes based Cloud.
 
 Enjoy and welcome to the new world of Java in the Cloud !
 
@@ -20,9 +20,8 @@ We will be using OpenJ9 for the tutorial below, however the repo has HotSpot exa
 ### Sample application
 
 We use a Springboot application that uses two Watson services:
-
-Visual Recognition : It detects the human faces in the image and determines their name, gender, maximum and minimum age.
-Text to Speech: It converts the given text to audio. You also have the option to download the audio file.
+  * Visual Recognition : It detects the human faces in the image and determines their name, gender, maximum and minimum age.
+  * Text to Speech: It converts the given text to audio. You also have the option to download the audio file.
 
 See this [link](https://github.com/ibmruntimes/java.bluemix.demos/tree/master/samples) for more info on how to run this application.
 
