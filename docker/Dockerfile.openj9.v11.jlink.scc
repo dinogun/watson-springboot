@@ -29,8 +29,7 @@ RUN git clone https://github.com/${app_repo}/${app_name}.git
 
 RUN cd ${app_name} \
     && mvn -f pom-java-v11.xml package \
-    && jlink -G --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --print-module-deps target/WatsonSampleApp.jar),java.se --output jre \
-    && cp /opt/java/openjdk/lib/compressedrefs/libj9shr29.so /opt/src/watson-springboot/jre/lib/compressedrefs
+    && jlink -G --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --print-module-deps target/WatsonSampleApp.jar),java.se,openj9.sharedclasses --exclude-files=**java_*.properties --output jre
 
 ENV JAVA_HOME=/opt/src/watson-springboot/jre \
     PATH="/opt/src/opt/src/watson-springboot/jre/bin:$PATH"
