@@ -42,7 +42,7 @@ The table below lists the docker image sizes of the application built on top of 
 | watson-springboot-openj9-v8 | 232MB |
 | watson-springboot-openj9-v8.slim | 117MB |
 | watson-springboot-openj9-v11 | 228MB |
-| watson-springboot-openj9-v11.jlink | 86MB |
+| watson-springboot-openj9-v11.jlink | 84MB |
 
 ### Optimize Startup
 
@@ -51,8 +51,8 @@ The table below lists the docker image sizes of the application built on top of 
 | watson-springboot-openj9-v8 | 232MB | 4 secs |
 | watson-springboot-openj9-v8.slim | 117MB | 4 secs |
 | watson-springboot-openj9-v11 | 228MB | 4 secs |
-| watson-springboot-openj9-v11.jlink | 86MB | 4 secs |
-| watson-springboot-openj9-v11.jlink.scc | 118MB | 2 secs |
+| watson-springboot-openj9-v11.jlink | 84MB | 4 secs |
+| watson-springboot-openj9-v11.jlink.scc | 116MB | 2 secs |
 
 ### Optimize Runtime
 
