@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# (C) Copyright IBM Corporation 2018, 2019
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+FROM bharathappali/openj9-jdk11-alpine:latest as mvnbuild-jdk11-openj9
+
+RUN apk update \
+    && apk add --no-cache git curl \
+    && rm -rf /var/cache/apk/*
+
+ARG MAVEN_VERSION="3.6.1"
+ARG USER_HOME_DIR="/root"
+ARG SHA="2528c35a99c30f8940cc599ba15d34359d58bec57af58c1075519b8cd33b69e7"
+ARG BASE_URL="https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries"
+
+RUN mkdir -p /usr/share/maven \
+    && curl -Lso  /tmp/maven.tar.gz ${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+    && echo "${SHA}  /tmp/maven.tar.gz" | sha256sum -c - \
+    && tar -xzC /usr/share/maven --strip-components=1 -f /tmp/maven.tar.gz \
+    && rm -v /tmp/maven.tar.gz \
+    && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+ENV MAVEN_HOME /usr/share/maven
+ENV MAVEN_CONFIG "${USER_HOME_DIR}/.m2"
+
+WORKDIR /opt/src
+
+ARG app_repo=dinogun
+ARG app_name=watson-springboot
+
+RUN git clone https://github.com/${app_repo}/${app_name}.git
+
+RUN cd ${app_name} \
+    && mvn -f pom-java-v11.xml package \
+    && jlink --strip-debug --compress 2 --no-header-files --no-man-pages --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --print-module-deps target/WatsonSampleApp.jar),java.se --exclude-files=**java_**.properties,J9TraceFormat.dat,OMRTraceFormat.dat,j9ddr.dat,public_suffix_list.dat --output jre
+
+
+FROM alpine:3.10
+
+RUN apk update \
+    && apk add --no-cache libunwind \
+    && rm -rf /var/cache/apk/*
+
+WORKDIR /opt/app
+
+COPY --from=mvnbuild-jdk11-openj9 /opt/src/watson-springboot/ /opt/app/
+
+ENV JAVA_HOME=/opt/app/jre \
+    PATH="/opt/app/jre/bin:$PATH"
+ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle"
+CMD ["sh","target/bin/webapp"]
