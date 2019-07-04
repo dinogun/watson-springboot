@@ -49,12 +49,12 @@ DOCKER_CAPABILITIES="--cap-add AUDIT_CONTROL \
 # Build the application docker image
 echo
 echo "#################### Building the App Docker Image #####################"
-docker build -t watsonex-springboot:openj9-v8 -f Dockerfile.openj9.v8 .
+docker build --pull -t watsonex-springboot:openj9-v8 -f Dockerfile.openj9.v8 .
 echo
 
 # Build a Docker image with the target application and CRIU libraries. 
 echo "#################### Build the App+CRIU Docker Image #####################"
-docker build -t watsonex-springboot:openj9-v8.criu-prep -f Dockerfile.criu.prep .
+docker build --pull -t watsonex-springboot:openj9-v8.criu-prep -f Dockerfile.criu.prep .
 echo
 
 # Now run the app to prep for checkpointing

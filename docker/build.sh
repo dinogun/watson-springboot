@@ -18,18 +18,22 @@
 # Build all the variants
 
 # OpenJ9 Builds
-docker build -t watsonex-springboot:openj9-v8.slim -f Dockerfile.openj9.v8.slim .
-docker build -t watsonex-springboot:openj9-v8 -f Dockerfile.openj9.v8 .
+docker build --pull -t watsonex-springboot:openj9-v8.slim -f Dockerfile.openj9.v8.slim .
+docker build --pull -t watsonex-springboot:openj9-v8 -f Dockerfile.openj9.v8 .
 
-docker build -t watsonex-springboot:openj9-v11.slim -f Dockerfile.openj9.v11.slim .
-docker build -t watsonex-springboot:openj9-v11 -f Dockerfile.openj9.v11 .
-docker build -t watsonex-springboot:openj9-v11.jlink -f Dockerfile.openj9.v11.jlink .
-docker build -t watsonex-springboot:openj9-v11.jlink.scc -f Dockerfile.openj9.v11.jlink.scc .
+docker build --pull -t watsonex-springboot:openj9-v11.slim -f Dockerfile.openj9.v11.slim .
+docker build --pull -t watsonex-springboot:openj9-v11 -f Dockerfile.openj9.v11 .
+docker build --pull -t watsonex-springboot:openj9-v11.jlink -f Dockerfile.openj9.v11.jlink .
+docker build --pull -t watsonex-springboot:openj9-v11.jlink.scc -f Dockerfile.openj9.v11.jlink.scc .
 
 
 # Hotspot builds
-docker build -t watsonex-springboot:hotspot-v8.slim -f Dockerfile.hotspot.v8.slim .
-docker build -t watsonex-springboot:hotspot-v8 -f Dockerfile.hotspot.v8 .
+docker build --pull -t watsonex-springboot:hotspot-v8.slim -f Dockerfile.hotspot.v8.slim .
+docker build --pull -t watsonex-springboot:hotspot-v8 -f Dockerfile.hotspot.v8 .
 
-docker build -t watsonex-springboot:hotspot-v11.slim -f Dockerfile.hotspot.v11.slim .
-docker build -t watsonex-springboot:hotspot-v11 -f Dockerfile.hotspot.v11 .
+docker build --pull -t watsonex-springboot:hotspot-v11.slim -f Dockerfile.hotspot.v11.slim .
+docker build --pull -t watsonex-springboot:hotspot-v11 -f Dockerfile.hotspot.v11 .
+
+echo
+echo
+docker images | grep -e "TAG" -e "watsonex"

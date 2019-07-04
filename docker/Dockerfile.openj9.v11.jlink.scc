@@ -29,13 +29,11 @@ RUN git clone https://github.com/${app_repo}/${app_name}.git
 
 RUN cd ${app_name} \
     && mvn -f pom-java-v11.xml package \
-    && jlink -G --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --print-module-deps target/WatsonSampleApp.jar),java.se --output jre \
-    && cp /opt/java/openjdk/lib/compressedrefs/libj9shr29.so /opt/src/watson-springboot/jre/lib/compressedrefs
-
+    && jlink --strip-debug --compress 2 --no-header-files --no-man-pages --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --print-module-deps target/WatsonSampleApp.jar),java.se,openj9.sharedclasses --exclude-files=**java_**.properties,J9TraceFormat.dat,OMRTraceFormat.dat,j9ddr.dat,public_suffix_list.dat --output jre 
 ENV JAVA_HOME=/opt/src/watson-springboot/jre \
     PATH="/opt/src/opt/src/watson-springboot/jre/bin:$PATH"
 # Turn on Shareclasses
-ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -Xshareclasses:cacheDir=/tmp/scc"
+ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -Xshareclasses:cacheDir=/tmp/scc -Xscmx30m"
 
 # Do a dry run of the app to generate share classes
 RUN cd ${app_name} \
@@ -43,7 +41,7 @@ RUN cd ${app_name} \
     && nohup bash -c "sh target/bin/webapp &" \
     && sleep 10
 
-FROM alpine:3.9
+FROM alpine:3.10
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
