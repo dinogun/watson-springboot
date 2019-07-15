@@ -40,7 +40,9 @@ WORKDIR /opt/src
 ARG app_repo=dinogun
 ARG app_name=watson-springboot
 
-RUN git clone https://github.com/${app_repo}/${app_name}.git
+RUN git clone https://github.com/${app_repo}/${app_name}.git \
+    && cd ${app_name} \
+    && mvn -e -B -f pom-java-v11.xml dependency:resolve
 
 RUN cd ${app_name} \
     && mvn -f pom-java-v11.xml package \
