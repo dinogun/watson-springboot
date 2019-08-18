@@ -57,7 +57,13 @@ RUN apk update \
 
 WORKDIR /opt/app
 
-COPY --from=mvnbuild-jdk11-openj9 /opt/src/watson-springboot/ /opt/app/
+RUN adduser -u 1001 -S -G root -s /usr/sbin/nologin default \
+    && chown -R 1001:0 /opt \
+    && chmod -R g+rw /opt
+
+USER 1001
+
+COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9 /opt/src/watson-springboot/ /opt/app/
 
 ENV JAVA_HOME=/opt/app/jre \
     PATH="/opt/app/jre/bin:$PATH"
