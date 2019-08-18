@@ -16,7 +16,7 @@
 #
 FROM adoptopenjdk/maven-openjdk11-openj9:latest as mvnbuild-jdk11-openj9
 
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -36,6 +36,15 @@ FROM adoptopenjdk:11-jre-openj9
 
 WORKDIR /opt/app
 
-COPY --from=mvnbuild-jdk11-openj9 /opt/src/watson-springboot/ /opt/app/
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends adduser \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd -u 1001 -r -g 0 -s /usr/sbin/nologin default \
+    && chown -R 1001:0 /opt \
+    && chmod -R g+rw /opt
+
+USER 1001
+
+COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9 /opt/src/watson-springboot/ /opt/app/
 
 CMD ["sh","target/bin/webapp"]

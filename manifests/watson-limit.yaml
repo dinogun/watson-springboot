@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: watson-limit-springapp
-        image: dinogun/watson-cjvm:slim
+        image: dinogun/watsonex-springboot:openj9-v11.jlink
         env:
         - name: JAVA_TOOL_OPTIONS
           value: -XX:MaxRAMPercentage=78.20 -Xmns63M -Xmos42M
