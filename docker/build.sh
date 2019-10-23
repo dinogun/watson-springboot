@@ -56,7 +56,7 @@ function docker_build() {
 	log "============================================================================="
 }
 
-cleanup
+#cleanup
 
 # Build all the variants
 
@@ -74,6 +74,7 @@ docker_build watsonex-springboot:hotspot-v8.slim Dockerfile.hotspot.v8.slim
 docker_build watsonex-springboot:hotspot-v8 Dockerfile.hotspot.v8
 docker_build watsonex-springboot:hotspot-v11.slim Dockerfile.hotspot.v11.slim
 docker_build watsonex-springboot:hotspot-v11 Dockerfile.hotspot.v11
+docker_build watsonex-springboot:hotspot-v11.jlink Dockerfile.hotspot.v11.jlink
 
 log
 log
