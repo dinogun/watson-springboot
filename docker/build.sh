@@ -60,6 +60,9 @@ function docker_build() {
 
 # Build all the variants
 
+# Build the alpine glibc base image first
+docker_build myalpine:3.10-glibc Dockerfile.alpine.glibc
+
 # OpenJ9 Builds
 docker_build watsonex-springboot:openj9-v8.slim Dockerfile.openj9.v8.slim
 docker_build watsonex-springboot:openj9-v8 Dockerfile.openj9.v8
