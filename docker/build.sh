@@ -56,7 +56,7 @@ function docker_build() {
 	log "============================================================================="
 }
 
-#cleanup
+cleanup
 
 # Build all the variants
 

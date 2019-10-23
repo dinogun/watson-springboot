@@ -39,16 +39,15 @@ RUN useradd -u 1001 -r -g 0 -s /usr/sbin/nologin default \
 
 USER 1001
 
-RUN jlink --strip-debug --compress 2 --no-header-files --no-man-pages --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --print-module-deps target/WatsonSpringBoot.jar),java.se,openj9.sharedclasses --exclude-files=**java_**.properties,**J9TraceFormat**.dat,**OMRTraceFormat**.dat,**j9ddr**.dat,**public_suffix_list**.dat --output jre
+RUN jlink --strip-debug --compress 2 --no-header-files --no-man-pages --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --print-module-deps target/WatsonSpringBoot.jar),java.desktop,java.instrument,java.logging,java.management,java.naming,java.security.jgss,java.sql,java.xml,openj9.sharedclasses --exclude-files=**java_**.properties,**J9TraceFormat**.dat,**OMRTraceFormat**.dat,**j9ddr**.dat,**public_suffix_list**.dat --output jre
 
 ENV JAVA_HOME=/opt/src/watson-springboot/jre \
-    PATH="/opt/src/opt/src/watson-springboot/jre/bin:$PATH"
+    PATH="/opt/src/watson-springboot/jre/bin:$PATH"
 # Turn on Shareclasses
 ENV JAVA_TOOL_OPTIONS="-Xshareclasses:cacheDir=/tmp/scc -Xscmx30m"
 
 # Do a dry run of the app to generate share classes
-RUN chmod +x target/bin/webapp \
-    && nohup bash -c "sh target/bin/webapp &" \
+RUN nohup bash -c "java -jar /opt/src/watson-springboot/target/WatsonSpringBoot-jar-with-dependencies.jar &" \
     && sleep 10
 
 FROM dinogun/alpine:3.10-glibc
@@ -61,7 +60,7 @@ RUN adduser -u 1001 -S -G root -s /usr/sbin/nologin default \
 
 USER 1001
 
-COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9 /opt/src/watson-springboot/target/WatsonSpringBoot-jar-with-dependencies.jar /opt/app/
+COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9-jlink-scc /opt/src/watson-springboot/target/WatsonSpringBoot-jar-with-dependencies.jar /opt/app/
 COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9-jlink-scc /tmp/scc/ /tmp/scc/
 
 ENV JAVA_HOME=/opt/app/jre \
