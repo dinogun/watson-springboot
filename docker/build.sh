@@ -56,9 +56,12 @@ function docker_build() {
 	log "============================================================================="
 }
 
-cleanup
+#cleanup
 
 # Build all the variants
+
+# Build the alpine glibc base image first
+docker_build myalpine:3.10-glibc Dockerfile.alpine.glibc
 
 # OpenJ9 Builds
 docker_build watsonex-springboot:openj9-v8.slim Dockerfile.openj9.v8.slim
@@ -74,6 +77,7 @@ docker_build watsonex-springboot:hotspot-v8.slim Dockerfile.hotspot.v8.slim
 docker_build watsonex-springboot:hotspot-v8 Dockerfile.hotspot.v8
 docker_build watsonex-springboot:hotspot-v11.slim Dockerfile.hotspot.v11.slim
 docker_build watsonex-springboot:hotspot-v11 Dockerfile.hotspot.v11
+docker_build watsonex-springboot:hotspot-v11.jlink Dockerfile.hotspot.v11.jlink
 
 log
 log

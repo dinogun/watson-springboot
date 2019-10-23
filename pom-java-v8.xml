@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>WatsonSampleApp</groupId>
-  <artifactId>WatsonSampleApp</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>WatsonSampleApp Maven Webapp</name>
+  <groupId>WatsonSpringBoot</groupId>
+  <artifactId>WatsonSpringBoot</artifactId>
+  <version>0.1.0</version>
+  <name>WatsonSpringBoot Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <properties>
 		<spring.version>4.3.18.RELEASE</spring.version>
@@ -116,7 +116,7 @@
 	
   </dependencies>
   <build>
-    <finalName>WatsonSampleApp</finalName>
+    <finalName>WatsonSpringBoot</finalName>
 	   <plugins>
         <plugin>
            <groupId>org.apache.maven.plugins</groupId>
