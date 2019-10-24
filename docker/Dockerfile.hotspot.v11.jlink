@@ -45,9 +45,9 @@ RUN adduser -u 1001 -S -G root -s /usr/sbin/nologin default \
 
 USER 1001
 
-COPY --chown=1001:0 --from=mvnbuild-jdk11 /opt/src/watson-springboot/target/WatsonSpringBoot-jar-with-dependencies.jar /opt/app/
+COPY --chown=1001:0 --from=mvnbuild-jdk11 /opt/src/watson-springboot/ /opt/app/
 
 ENV JAVA_HOME=/opt/app/jre \
     PATH="/opt/app/jre/bin:$PATH"
 
-CMD ["java","-jar", "/opt/app/WatsonSpringBoot-jar-with-dependencies.jar"]
+CMD ["sh","target/bin/webapp"]
