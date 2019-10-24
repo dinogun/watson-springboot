@@ -47,9 +47,7 @@ ENV JAVA_HOME=/opt/src/watson-springboot/jre \
 ENV JAVA_TOOL_OPTIONS="-Xshareclasses:cacheDir=/tmp/scc -Xscmx30m"
 
 # Do a dry run of the app to generate share classes
-RUN cd ${app_name} \
-    && chmod +x target/bin/webapp \
-    && nohup bash -c "sh target/bin/webapp &" \
+RUN nohup bash -c "java -jar /opt/src/watson-springboot/target/WatsonSpringBoot-jar-with-dependencies.jar &" \
     && sleep 10
 
 FROM dinogun/alpine:3.10-glibc
@@ -62,11 +60,11 @@ RUN adduser -u 1001 -S -G root -s /usr/sbin/nologin default \
 
 USER 1001
 
+COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9-jlink-scc /opt/src/watson-springboot/target/WatsonSpringBoot-jar-with-dependencies.jar /opt/app/
 COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9-jlink-scc /tmp/scc/ /tmp/scc/
-COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9-jlink-scc /opt/src/watson-springboot/ /opt/app/
 
 ENV JAVA_HOME=/opt/app/jre \
-    PATH="/opt/app/jre/bin:$PATH" \
-    JAVA_TOOL_OPTIONS="-Xshareclasses:name=sharedcc_default,cacheDir=/tmp/scc"
+    PATH="/opt/app/jre/bin:$PATH"
+ENV JAVA_TOOL_OPTIONS="-Xshareclasses:name=sharedcc_default,cacheDir=/tmp/scc"
 
-CMD ["sh","target/bin/webapp"]
+CMD ["java","-jar", "/opt/app/WatsonSpringBoot-jar-with-dependencies.jar"]
