@@ -13,9 +13,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+#********************************  BUILD PHASE *********************************
 #
+# The build phase is optimized for faster developer/build turn around time.
+# This translates to more layers implying more local caching.
+
+# Use the maven docker image rather than installing it locally.
+# This helps keep all developers on the team to have the same build environment
 FROM adoptopenjdk/maven-openjdk11-openj9:latest as mvnbuild-jdk11-openj9-jlink-scc
 
+# Install any additional packages that a typical developer in the team needs.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git vim \
     && rm -rf /var/lib/apt/lists/*
@@ -25,45 +33,81 @@ WORKDIR /opt/src
 ARG app_repo=dinogun
 ARG app_name=watson-springboot
 
+# To build the app, there are two options
+# 1. Clone the repo inside the container
+# 2. Clone the repo on disk and pass the path to the maven container as a mounted volume
+# You'll need to use `docker build` in the first case and `docker run` in the second.
 RUN git clone https://github.com/${app_repo}/${app_name}.git
 
 WORKDIR /opt/src/${app_name}
 
+# Install all the maven dependencies for the project as a separate docker layer.
+# Since the dependencies rarely change, caching the dependencies is a one time step
+# and reduces the time taken to build
 RUN mvn -f pom-java-v11.xml install dependency:copy-dependencies
 
+# Build and package in this step
 RUN mvn -f pom-java-v11.xml clean package
 
+# Create a non root user.
+# Since we will now be creating a custom JRE for the application, it is good to generate
+# the JRE with the right userid/perms from the beginning.
 RUN useradd -u 1001 -r -g 0 -s /usr/sbin/nologin default \
     && chown -R 1001:0 /opt/src \
     && chmod -R g+rw /opt/src
 
+# Switch to the newly created user
 USER 1001
 
+# Now create the customer JRE for the application using jlink.
+# The jlink command used here is optimized to generate the smallest possible JRE
+# This is done by removing debug files, header files and man pages, choosing the highest
+# compression rate, choosing the specific modules needed by the application,
+# removing properties files not needed for the current locale and debug dat files.
+# If the application is modularized, we do not need to manually specify the modules needed.
+# In this example, the application is non-modular and hence the need to specify the modules manually.
 RUN jlink --strip-debug --compress 2 --no-header-files --no-man-pages --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --print-module-deps target/WatsonSpringBoot.jar),java.desktop,java.instrument,java.logging,java.management,java.naming,java.security.jgss,java.sql,java.xml,openj9.sharedclasses --exclude-files=**java_**.properties,**J9TraceFormat**.dat,**OMRTraceFormat**.dat,**j9ddr**.dat,**public_suffix_list**.dat --output jre
 
+# Now change the PATH to pick up the newly created JRE.
 ENV JAVA_HOME=/opt/src/watson-springboot/jre \
     PATH="/opt/src/watson-springboot/jre/bin:$PATH"
-# Turn on Shareclasses
+# Set the options to turn on the Shared Class Cache (SCC) and fix the size.
 ENV JAVA_TOOL_OPTIONS="-Xshareclasses:cacheDir=/tmp/scc -Xscmx30m"
 
-# Do a dry run of the app to generate share classes
-RUN cd ${app_name} \
+# Do a dry run of the app to generate the SCC.
+RUN cd /opt/src/${app_name} \
     && chmod +x target/bin/webapp \
     && nohup bash -c "sh target/bin/webapp &" \
     && sleep 10
 
+# This concludes the Build phase where we
+# 1. Built and packaged the application.
+# 2. Created a custom JRE for the application.
+# 3. Created a SCC specific to the application.
+
+#********************************  PACKAGE PHASE *******************************
+#
+# This phase is optimized to have the smallest possible docker image size and
+# have the least number of layers as possible.
+
+# Start from a Alpine Linux image, since the Jre we are using is glibc based,
+# we need a Alpine Linux + Glibc base docker image.
 FROM dinogun/alpine:3.10-glibc
 
 WORKDIR /opt/app
 
+# Create the non root user, same as the one used in the build phase.
 RUN adduser -u 1001 -S -G root -s /usr/sbin/nologin default \
     && chown -R 1001:0 /opt/app \
     && chmod -R g+rw /opt/app
 
+# Switch to the non root user
 USER 1001
 
-COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9-jlink-scc /tmp/scc/ /tmp/scc/
+# Copy the Application and the newly built JRE from the build phase
 COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9-jlink-scc /opt/src/watson-springboot/ /opt/app/
+# Copy the SCC from the build phase
+COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9-jlink-scc /tmp/scc/ /tmp/scc/
 
 ENV JAVA_HOME=/opt/app/jre \
     PATH="/opt/app/jre/bin:$PATH" \
