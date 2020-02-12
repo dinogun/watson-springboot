@@ -92,7 +92,7 @@ RUN cd /opt/src/${app_name} \
 
 # Start from a Alpine Linux image, since the Jre we are using is glibc based,
 # we need a Alpine Linux + Glibc base docker image.
-FROM dinogun/alpine:3.10-glibc
+FROM dinogun/alpine:3.11-glibc
 
 WORKDIR /opt/app
 
