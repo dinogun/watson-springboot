@@ -61,7 +61,7 @@ cleanup
 # Build all the variants
 
 # Build the alpine glibc base image first
-docker_build myalpine:3.10-glibc Dockerfile.alpine.glibc
+docker_build dinogun/alpine:3.11-glibc Dockerfile.alpine.glibc
 
 # OpenJ9 Builds
 docker_build watsonex-springboot:openj9-v8.slim Dockerfile.openj9.v8.slim
