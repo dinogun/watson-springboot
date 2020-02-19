@@ -33,10 +33,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ibm.beans.ImgDetail;
 import com.ibm.beans.Text;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.model.AudioFormat;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
+
+import com.ibm.cloud.sdk.core.security.Authenticator;
+import com.ibm.cloud.sdk.core.security.IamAuthenticator;
+
+import com.ibm.watson.text_to_speech.v1.TextToSpeech;
+import com.ibm.watson.text_to_speech.v1.model.SynthesizeOptions;
+import com.ibm.watson.text_to_speech.v1.util.WaveUtils;
+
 import com.ibm.watson.developer_cloud.visual_recognition.v3.VisualRecognition;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.DetectedFaces;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualRecognitionOptions;
@@ -60,7 +64,7 @@ public class ImgController {
 		try{
 		System.out.println(img.getUrl());
 		VisualRecognition service = new VisualRecognition(VisualRecognition.VERSION_DATE_2016_05_20);
-		service.setApiKey("237c89fe498bd97b337b0246d8604537cf35b984");
+		service.setApiKey("Fjp7YwuMc7OOfCiMbSp1_w3OwJIajcZ5PgJBXNpXGjhy");
 
 		System.out.println("Detect faces");
 		VisualRecognitionOptions options = new VisualRecognitionOptions.Builder().url(img.getUrl()).build();
@@ -101,22 +105,27 @@ public class ImgController {
 	}
 
 	@RequestMapping(value = "/text", method = RequestMethod.GET)
-	public ModelAndView student() {
+	public ModelAndView text() {
 		return new ModelAndView("textHome", "command", new Text());
 	}
 
 	@RequestMapping(value = "/textprocess", method = RequestMethod.GET)
-	public void addStudent(@ModelAttribute("Spring") Text txt, HttpServletRequest request, HttpServletResponse response)
+	public void texttospeech(@ModelAttribute("Spring") Text txt, HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 
-		TextToSpeech service = new TextToSpeech();
-		service.setUsernameAndPassword("7759c1e2-4ca9-4e1b-9fad-7544188fc645", "8b5qJv6ubIAf");
+		Authenticator ttsAuthenticator = new IamAuthenticator("PpOj5JfFyDqvUbzxS3VcSTvRhUTHQ334AnMOYnQ_MGXk");
+		TextToSpeech synthesizer = new TextToSpeech(ttsAuthenticator);
 
 		try {
 
 			String text = request.getParameter("text");
-			InputStream stream = service.synthesize(text, Voice.EN_ALLISON, AudioFormat.WAV).execute();
-			InputStream in = WaveUtils.reWriteWaveHeader(stream);
+			
+			SynthesizeOptions synthesizeOptions = new SynthesizeOptions.Builder()
+				.text(text)
+				.voice(SynthesizeOptions.Voice.EN_US_LISAVOICE)
+				.accept("audio/wav")
+				.build();
+			InputStream in = synthesizer.synthesize(synthesizeOptions).execute().getResult();
 
 			if (request.getParameter("download") != null) {
 				response.setHeader("content-disposition", "attachment; filename=audio.wav");
@@ -129,7 +138,6 @@ public class ImgController {
 			}
 			out.close();
 			in.close();
-			stream.close();
 			System.out.println("done");
 		} catch (Exception e) {
 			e.printStackTrace();
