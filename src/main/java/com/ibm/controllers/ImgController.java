@@ -114,7 +114,6 @@ public class ImgController {
 			throws IOException {
 
 		String ttsAuthToken = removeLastCharacter(System.getenv("TEXT_TO_SPEECH_IAM_APIKEY"));
-		System.out.println("TEXT_TO_SPEECH_IAM_APIKEY Value:- " + ttsAuthToken);
 		Authenticator ttsAuthenticator = new IamAuthenticator(ttsAuthToken);
 		TextToSpeech synthesizer = new TextToSpeech(ttsAuthenticator);
 

@@ -7,8 +7,8 @@
   <name>WatsonSpringBoot Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <properties>
-		<spring.version>5.2.3.RELEASE</spring.version>
-		<tomcat.version>9.0.31</tomcat.version>
+		<spring.version>5.2.4.RELEASE</spring.version>
+		<tomcat.version>7.0.100</tomcat.version>
 	</properties>
   <dependencies>
     <dependency>
