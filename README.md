@@ -19,10 +19,10 @@ We will be using OpenJ9 for the tutorial below, however the repo has HotSpot exa
 
 ### Sample application
 
-We use a Springboot application that uses two Watson services:
-  * Visual Recognition : It detects the human faces in the image and determines their name, gender, maximum and minimum age.
+We use a Springboot application that uses this Watson service
   * Text to Speech: It converts the given text to audio. You also have the option to download the audio file.
 
+PS: The app expects the env var "TEXT_TO_SPEECH_IAM_APIKEY" to be set with the IAM API key of the watson text to speech service being used.
 See this [link](https://github.com/ibmruntimes/java.bluemix.demos/tree/master/samples) for more info on how to run this application.
 
 Now let us look at five steps to cloud proof this app.
