@@ -1,5 +1,5 @@
 /*
- * (C) Copyright IBM Corporation 2019, 2019
+ * (C) Copyright IBM Corporation 2019, 2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,9 @@ import com.ibm.watson.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.text_to_speech.v1.model.SynthesizeOptions;
 import com.ibm.watson.text_to_speech.v1.util.WaveUtils;
 
-import com.ibm.watson.developer_cloud.visual_recognition.v3.VisualRecognition;
-import com.ibm.watson.developer_cloud.visual_recognition.v3.model.DetectedFaces;
-import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualRecognitionOptions;
+//import com.ibm.watson.developer_cloud.visual_recognition.v3.VisualRecognition;
+//import com.ibm.watson.developer_cloud.visual_recognition.v3.model.DetectedFaces;
+//import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualRecognitionOptions;
 
 import org.springframework.ui.ModelMap;
 
@@ -59,50 +59,50 @@ public class ImgController {
 		return new ModelAndView("imageHome", "command", new ImgDetail());
 	}
 
-	@RequestMapping(value = "/imageprocess", method = RequestMethod.POST)
-	public ModelAndView processimage(@ModelAttribute("SpringWeb") ImgDetail img) {
-		try{
-		System.out.println(img.getUrl());
-		VisualRecognition service = new VisualRecognition(VisualRecognition.VERSION_DATE_2016_05_20);
-		service.setApiKey("Fjp7YwuMc7OOfCiMbSp1_w3OwJIajcZ5PgJBXNpXGjhy");
+	//@RequestMapping(value = "/imageprocess", method = RequestMethod.POST)
+	//public ModelAndView processimage(@ModelAttribute("SpringWeb") ImgDetail img) {
+	//	try{
+	//	System.out.println(img.getUrl());
+	//	String vrAuthToken = System.getenv("VISUAL_RECOGNITION_IAM_APIKEY");
+	//	VisualRecognition service = new VisualRecognition(vrAuthToken);
 
-		System.out.println("Detect faces");
-		VisualRecognitionOptions options = new VisualRecognitionOptions.Builder().url(img.getUrl()).build();
-		DetectedFaces result = service.detectFaces(options).execute();
-		System.out.println(result);
+	//	System.out.println("Detect faces");
+	//	VisualRecognitionOptions options = new VisualRecognitionOptions.Builder().url(img.getUrl()).build();
+	//	DetectedFaces result = service.detectFaces(options).execute();
+	//	System.out.println(result);
 
-		JsonObject rawOutput = new JsonParser().parse(result.toString()).getAsJsonObject();
-		JsonObject face = rawOutput.get("images").getAsJsonArray().get(0).getAsJsonObject().get("faces")
-				.getAsJsonArray().get(0).getAsJsonObject();
+	//	JsonObject rawOutput = new JsonParser().parse(result.toString()).getAsJsonObject();
+	//	JsonObject face = rawOutput.get("images").getAsJsonArray().get(0).getAsJsonObject().get("faces")
+	//			.getAsJsonArray().get(0).getAsJsonObject();
 
-		if (face.get("identity") == null)
-			img.setName("Cannot be identified");
-		else
-			img.setName(face.get("identity").getAsJsonObject().get("name").getAsString());
+	//	if (face.get("identity") == null)
+	//		img.setName("Cannot be identified");
+	//	else
+	//		img.setName(face.get("identity").getAsJsonObject().get("name").getAsString());
 
-		if (face.get("gender") == null)
-			img.setGender("Cannot be identified");
-		else
-			img.setGender(face.get("gender").getAsJsonObject().get("gender").getAsString());
+	//	if (face.get("gender") == null)
+	//		img.setGender("Cannot be identified");
+	//	else
+	//		img.setGender(face.get("gender").getAsJsonObject().get("gender").getAsString());
 
-		if (face.get("age").getAsJsonObject().get("min") == null)
-			img.setMin_age("NA");
-		else
-			img.setMin_age(face.get("age").getAsJsonObject().get("min").getAsString());
+	//	if (face.get("age").getAsJsonObject().get("min") == null)
+	//		img.setMin_age("NA");
+	//	else
+	//		img.setMin_age(face.get("age").getAsJsonObject().get("min").getAsString());
 
-		if (face.get("age").getAsJsonObject().get("max") == null)
-			img.setMax_age("NA");
-		else
-			img.setMax_age(face.get("age").getAsJsonObject().get("max").getAsString());
+	//	if (face.get("age").getAsJsonObject().get("max") == null)
+	//		img.setMax_age("NA");
+	//	else
+	//		img.setMax_age(face.get("age").getAsJsonObject().get("max").getAsString());
 
-		return new ModelAndView("result", "img", img);
-		}
-		catch(Exception e){
-			e.printStackTrace();
-			return new ModelAndView("error"); 
-		}
+	//	return new ModelAndView("result", "img", img);
+	//	}
+	//	catch(Exception e){
+	//		e.printStackTrace();
+	//		return new ModelAndView("error"); 
+	//	}
 
-	}
+	//}
 
 	@RequestMapping(value = "/text", method = RequestMethod.GET)
 	public ModelAndView text() {
@@ -113,7 +113,9 @@ public class ImgController {
 	public void texttospeech(@ModelAttribute("Spring") Text txt, HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 
-		Authenticator ttsAuthenticator = new IamAuthenticator("PpOj5JfFyDqvUbzxS3VcSTvRhUTHQ334AnMOYnQ_MGXk");
+		String ttsAuthToken = removeLastCharacter(System.getenv("TEXT_TO_SPEECH_IAM_APIKEY"));
+		System.out.println("TEXT_TO_SPEECH_IAM_APIKEY Value:- " + ttsAuthToken);
+		Authenticator ttsAuthenticator = new IamAuthenticator(ttsAuthToken);
 		TextToSpeech synthesizer = new TextToSpeech(ttsAuthenticator);
 
 		try {
@@ -143,8 +145,13 @@ public class ImgController {
 			e.printStackTrace();
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		}
-
-		// return "done";
 	}
 
+	public static String removeLastCharacter(String str) {
+		String result = null;
+		if ((str != null) && (str.length() > 0)) {
+			result = str.substring(0, str.length() - 1);
+		}
+		return result;
+	}
 }

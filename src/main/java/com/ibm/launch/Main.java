@@ -1,5 +1,5 @@
 /*
- * (C) Copyright IBM Corporation 2019, 2019
+ * (C) Copyright IBM Corporation 2019, 2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,24 @@ import org.apache.catalina.startup.Tomcat;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 
-        String webappDirLocation = "src/main/webapp/";
-        Tomcat tomcat = new Tomcat();
+		String webappDirLocation = "src/main/webapp/";
+		Tomcat tomcat = new Tomcat();
 
-        //The port that we should run on can be set into an environment variable
-        //Look for that variable and default to 8080 if it isn't there.
-        String webPort = System.getenv("PORT");
-        if(webPort == null || webPort.isEmpty()) {
-            webPort = "8080";
-        }
+		//The port that we should run on can be set into an environment variable
+		//Look for that variable and default to 8080 if it isn't there.
+		String webPort = System.getenv("PORT");
+		if (webPort == null || webPort.isEmpty()) {
+			webPort = "8080";
+		}
 
-        tomcat.setPort(Integer.valueOf(webPort));
+		tomcat.setPort(Integer.valueOf(webPort));
 
-        tomcat.addWebapp("/", new File(webappDirLocation).getAbsolutePath());
-        System.out.println("configuring app with basedir: " + new File("./" + webappDirLocation).getAbsolutePath());
+		tomcat.addWebapp("/", new File(webappDirLocation).getAbsolutePath());
+		System.out.println("configuring app with basedir: " + new File("./" + webappDirLocation).getAbsolutePath());
 
-        tomcat.start();
-        tomcat.getServer().await();
-    }
+		tomcat.start();
+		tomcat.getServer().await();
+	}
 }
