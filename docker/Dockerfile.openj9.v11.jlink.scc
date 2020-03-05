@@ -1,6 +1,5 @@
-#!/bin/bash
 #
-# (C) Copyright IBM Corporation 2018, 2019
+# (C) Copyright IBM Corporation 2018, 2020
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +15,7 @@
 
 #********************************  BUILD PHASE *********************************
 #
+# Optimized for Inner loop
 # The build phase is optimized for faster developer/build turn around time.
 # This translates to more layers implying more local caching.
 
@@ -85,7 +85,7 @@ RUN cd /opt/src/${app_name} \
 # 2. Created a custom JRE for the application.
 # 3. Created a SCC specific to the application.
 
-#********************************  PACKAGE PHASE *******************************
+#********************************  RUNTIME PHASE *******************************
 #
 # This phase is optimized to have the smallest possible docker image size and
 # have the least number of layers as possible.
@@ -108,6 +108,11 @@ USER 1001
 COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9-jlink-scc /opt/src/watson-springboot/ /opt/app/
 # Copy the SCC from the build phase
 COPY --chown=1001:0 --from=mvnbuild-jdk11-openj9-jlink-scc /tmp/scc/ /tmp/scc/
+
+# Fat Jar vs Hollow Jar
+# Eclipse MicroProfile by default supports a Hollow Jar (dummy app server)
+# SpringBoot has recently added support, this project does not implement it yet.
+# Best practice would be to copy the hollow jar and the app in different layers
 
 ENV JAVA_HOME=/opt/app/jre \
     PATH="/opt/app/jre/bin:$PATH" \
