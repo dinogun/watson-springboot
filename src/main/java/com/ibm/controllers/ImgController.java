@@ -113,7 +113,7 @@ public class ImgController {
 	public void texttospeech(@ModelAttribute("Spring") Text txt, HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 
-		String ttsAuthToken = removeLastCharacter(System.getenv("TEXT_TO_SPEECH_IAM_APIKEY"));
+		String ttsAuthToken = removeLineBreaks(System.getenv("TEXT_TO_SPEECH_IAM_APIKEY"));
 		Authenticator ttsAuthenticator = new IamAuthenticator(ttsAuthToken);
 		TextToSpeech synthesizer = new TextToSpeech(ttsAuthenticator);
 
@@ -146,10 +146,10 @@ public class ImgController {
 		}
 	}
 
-	public static String removeLastCharacter(String str) {
+	public static String removeLineBreaks(String str) {
 		String result = null;
 		if ((str != null) && (str.length() > 0)) {
-			result = str.substring(0, str.length() - 1);
+			result = str.replaceAll("\r", "").replaceAll("\n", "");
 		}
 		return result;
 	}
