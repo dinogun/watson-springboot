@@ -1,0 +1,92 @@
+#
+# (C) Copyright IBM Corporation 2018, 2020
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+###########################################################
+#                   Build Docker Image                    #
+###########################################################
+# Optimized for Inner loop
+# The build phase is optimized for faster developer/build turn around time.
+# This translates to more layers implying more local caching.
+
+# Use the maven docker image rather than installing it locally.
+# This helps keep all developers on the team to have the same build environment
+FROM maven:3-eclipse-temurin-17 as mvnbuild-jdk17
+
+# Install any additional packages that a typical developer in the team needs.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git vim \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/src/watson-springboot
+
+# Install all the maven dependencies for the project as a separate docker layer.
+# Since the dependencies rarely change, caching the dependencies is a one time step
+# and reduces the time taken to build
+# Copy only the pom.xml and download the dependencies
+COPY pom-java-v17.xml /opt/src/watson-springboot/
+RUN mvn -f pom-java-v17.xml install dependency:copy-dependencies
+
+# Now copy the sources and compile and package them
+COPY src /opt/src/watson-springboot/src/
+RUN mvn -f pom-java-v17.xml clean package
+
+###########################################################
+#                      jlink jre binary                   #
+###########################################################
+FROM eclipse-temurin:17-alpine as jlink-jre17
+
+# Install any additional packages that a typical developer in the team needs.
+RUN apk add binutils \
+    && rm -rf /var/cache/apk/*
+
+COPY --from=mvnbuild-jdk17 /opt/src/watson-springboot /opt/src/watson-springboot/
+
+WORKDIR /opt/src/watson-springboot
+
+# Now create the customer JRE for the application using jlink.
+# The jlink command used here is optimized to generate the smallest possible JRE
+# This is done by removing debug files, header files and man pages, choosing the highest
+# compression rate, choosing the specific modules needed by the application,
+# removing properties files not needed for the current locale and debug dat files.
+# If the application is modularized, we do not need to manually specify the modules needed.
+# In this example, the application is non-modular and hence the need to specify the modules manually.
+RUN jlink --strip-debug --compress 2 --no-header-files --no-man-pages --module-path /opt/java/openjdk/jmods --add-modules $(jdeps --ignore-missing-deps --print-module-deps target/WatsonSpringBoot.jar),java.desktop,java.instrument,java.logging,java.management,java.naming,java.security.jgss,java.sql,java.xml --exclude-files=**java_**.properties,**public_suffix_list**.dat --output jre
+
+###########################################################
+#                  Runtime Docker Image                   #
+###########################################################
+#
+# This phase is optimized to have the smallest possible docker image size and
+# have the least number of layers as possible.
+# Start from a base Alpine Linux image
+FROM alpine:latest
+
+WORKDIR /opt/app
+
+# Create a non root user
+RUN adduser -u 1001 -S -G root -s /usr/sbin/nologin default \
+    && chown -R 1001:0 /opt/app \
+    && chmod -R g+rw /opt/app
+
+# Switch to the non root user
+USER 1001
+
+# Copy the Application and the newly built JRE from the build phase
+COPY --chown=1001:0 --from=jlink-jre17 /opt/src/watson-springboot/ /opt/app/
+
+ENV JAVA_HOME=/opt/app/jre \
+    PATH="/opt/app/jre/bin:$PATH"
+
+CMD ["sh","target/bin/webapp"]
